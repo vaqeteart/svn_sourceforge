@@ -129,9 +129,9 @@ int globalmem_init(void)
 		/*定义位置和静态分配一样*/
 		result = alloc_chrdev_region(&devno, 0,1, "globalmem_simple");
 
-#if DYNAMIC_ALLOC_MAJOR == 0
 		/*根据设备号获取对应主设备号,在"linux/kdev_t.h"定义*/
 		globalmem_major = MAJOR(devno);
+#if DYNAMIC_ALLOC_MAJOR == 0
 	}
 #endif
 
