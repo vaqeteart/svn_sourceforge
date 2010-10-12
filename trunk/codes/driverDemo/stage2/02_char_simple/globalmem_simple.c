@@ -23,7 +23,7 @@
  *5)卸载模块
  *rmmod globalmem_simple
 
- *问题：为什么cat读的时候有错误提示？估计和文件偏移设置的不正确有关。
+ *问题：为什么cat读的时候有错误提示？(已经解决参考read注释)估计和文件偏移设置的不正确有关。
  */
 
 #include <linux/module.h>
@@ -186,9 +186,9 @@ static ssize_t globalmem_read(struct file *filp, char __user *buf, size_t count,
 	/*将设备数据读取出来（到用户空间），设备数据当然存放在自定义设备结构体的数组中*/
 	unsigned long p = *ppos;
 	int ret = 0;
-	if(p >= GLOBALMEM_SIZE)
+	if(p > GLOBALMEM_SIZE)
 	{
-		/*这里在每次读的时候都会进入，不知道为什么，写入之后数据正确读出了之后也会进到这里*/
+		/*这里如果是"p>="在每次读的时候都会进入，不知道为什么，写入之后数据正确读出了之后也会进到这里*/
 		printk(KERN_ALERT "some error1\n");
 		return count ? -ENXIO:0;
 	}
@@ -227,7 +227,7 @@ static ssize_t globalmem_write(struct file *filp, const char __user *buf, size_t
 	/*把上面的printk注释掉就没有那个警告了*/
 	unsigned long p = *ppos;
 	int ret = 0;
-	if(p >= GLOBALMEM_SIZE)
+	if(p > GLOBALMEM_SIZE)
 	{
 		return count ? -ENXIO:0;
 	}
@@ -260,7 +260,8 @@ static loff_t globalmem_llseek(struct file *filp, loff_t offset, int orig)
 	loff_t ret;
 	switch(orig)
 	{
-		case 0:/*从文件开头偏移*/
+		/*case 0:从文件开头偏移*/
+		case SEEK_SET:
 			if(offset < 0)
 			{
 				ret = -EINVAL;
@@ -274,7 +275,8 @@ static loff_t globalmem_llseek(struct file *filp, loff_t offset, int orig)
 			filp->f_pos = (unsigned int)offset;
 			ret = filp->f_pos;
 			break;
-		case 1:/*从当前位置偏移*/
+		/*case 1:从当前位置偏移*/
+		case SEEK_CUR:
 			if((filp->f_pos+offset) > GLOBALMEM_SIZE)
 			{
 				ret = -EINVAL;
@@ -286,6 +288,20 @@ static loff_t globalmem_llseek(struct file *filp, loff_t offset, int orig)
 				break;
 			}
 			filp->f_pos += offset;
+			ret = filp->f_pos;
+			break;
+		case SEEK_END:/*从当前位置偏移*/
+			if(offset > 0)
+			{
+				ret = -EINVAL;
+				break;
+			}
+			if(offset < -GLOBALMEM_SIZE)
+			{
+				ret = -EINVAL;
+				break;
+			}
+			filp->f_pos = offset+GLOBALMEM_SIZE;
 			ret = filp->f_pos;
 			break;
 		default:
