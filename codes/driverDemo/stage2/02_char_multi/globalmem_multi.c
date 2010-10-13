@@ -1,18 +1,16 @@
-/*一、功能：本例子使用一个相对比较标准的方法定义了一种字符设备，
+/*一、功能：本例子使用一个相对比较标准的方法定义了一种字符设备，并且支持多个设备文件。
  *这个设备是一个全局内存字符设备，其功能是：
  *一个程序向该设备对应的设备文件中写入数据，另一个程序可以从这个设备文件中读取数据。
+ *支持两个设备文件。
  *另外这个设备驱动支持清除设备文件中所有的数据为空。
- *当前相对于前面的例子(char_simple)，标准的地方是：
- *1）没有直接定义全局设备对象，而是把设备对象在初始化函数中动态初始化，在文件私有数据中指向该地址
- *2)设备号码不用静态分配而直接用动态分配了，因为静态分配想要标准的还要查询一个devices.txt文件
- *3)ioctl命令码的生成方式比较标准了
+
  *在对应的地方，都有说明的。另外，把模块的init和exit函数放在了最后。
  *在下一个例子中会给出一个相对典型的方法。
  *二、使用说明：
  *1)编译
  *$make
  *2)插入模块
- *insmod globalmem_std.ko
+ *insmod globalmem_multi.ko
  *可以通过"cat /proc/devices"得知设备的主从号码
  *3)创建设备文件
  *#mknod mytest c <主设备号> 0
@@ -21,10 +19,10 @@
  *读取数据：cat mytest
  *ioctl：使用testDemo中的代码进行测试。
  *5)卸载模块
- *rmmod globalmem_std
+ *rmmod globalmem_multi
 
  *注意:关键的地方我都用"+++"来标记了.
- *问题：为什么lsmod有输出，cat /proc/devices没有？并且无法创建设备文件?
+ *问题：为什么lsmod有输出，cat /proc/devices没有？其他不太清楚的地方用"???"标记.
  */
 
 #include <linux/module.h>
@@ -44,7 +42,7 @@
 #define GLOBALMEM_SIZE 0x1000
 /***清零全局内存*/
 //#define MEM_CLEAR 0x1
-/*+++见后面ioctl函数前的注释，这里有待研究我也不太懂究竟怎么确定这个魔术数,就随便选了一个*/
+/*见后面ioctl函数前的注释，这里有待研究我也不太懂究竟怎么确定这个魔术数,就随便选了一个*/
 #define GLOBALMEM_MAGIC 'D'
 #define MEM_CLEAR _IO(GLOBALMEM_MAGIC,0)
 /***预设的主设备号*/
@@ -86,7 +84,7 @@ static int globalmem_ioctl(struct inode *inodep, struct file *filp,
 
 /*声明结构和变量*/
 static int globalmem_major = GLOBALMEM_MAJOR;
-/*+++这里不用全局变量，而用一个设备结构体指针了*/
+/*这里不用全局变量，而用一个设备结构体指针了*/
 struct globalmem_dev *devp;
 
 /*与字符设备结构体操作相关的函数指针结构体*/
@@ -124,6 +122,13 @@ static void globalmem_setup_cdev(struct globalmem_dev *dev,int index)
 
 	/*添加初始化好的自定义设备，需要在注册完设备号之后才能调用*/
 	/*第一个参数是对应的字符设备结构体，第二个是设备号，第三个是次设备数目*/
+	/*第二个参数是设备响应的第一个设备号；第三个参数是和设备相关联的设备号的数目。
+	 *一般的，count 的值为 1，但是有些情形也可能是大于 1 的数。
+	 *比如 SCSI 磁带机，它通过给每个物理设备安排多个此设备号来允许用户在应用程序里选择操作模式(比如密度)。
+	 *cdev_add 如果失败了，那么返回一个负值，表明驱动无法加载到系统中。
+	 *然而它一般情况下都会成功，一旦 cdev_add 返回，设备也就 “活” 了起来，于
+	 *是所对应的操作方法(file_operations 结构里所定义的各种函数)也就能为内核所调用。 
+	*/
 	/*在"linux/cdev.h"中声明*/
 	err = cdev_add(&dev->cdev, devno, 1);
 	if(err)
@@ -135,8 +140,15 @@ static void globalmem_setup_cdev(struct globalmem_dev *dev,int index)
 /*打开设备函数*/
 int globalmem_open(struct inode *inode, struct file *filp)
 {
-	/*+++这里是获得设备驱动的结构变量，因为这个变量不是全局的了，所以通过open来获取它*/
-	filp->private_data = devp;
+	/*这里是获得设备驱动的结构变量，因为这个变量不是全局的了，所以通过open来获取它*/
+	struct globalmem_dev *dev;
+	/*+++通过结构体成员指针找到对应结构体指针???*/
+	/*container_of返回值是整个结构体指针。
+	 *第1个参数是结构体成员的指针，
+	 *第2个参数是整个结构体的类型，
+	 *第3个参数是第1个参数即结构体成员的类型，*/
+	dev = container_of(inode->i_cdev, struct globalmem_dev, cdev);
+	filp->private_data = dev;
 	return 0;
 }
 
@@ -153,7 +165,7 @@ int globalmem_release(struct inode *inode, struct file *filp)
 static ssize_t globalmem_read(struct file *filp, char __user *buf, size_t count, loff_t *ppos)
 {
 	printk(KERN_ALERT "read\n");
-	/*+++获取设备结构体指针*/
+	/*获取设备结构体指针*/
 	struct globalmem_dev *dev = filp->private_data;
 
 	/*将设备数据读取出来（到用户空间），设备数据当然存放在自定义设备结构体的数组中*/
@@ -195,7 +207,7 @@ static ssize_t globalmem_read(struct file *filp, char __user *buf, size_t count,
 static ssize_t globalmem_write(struct file *filp, const char __user *buf, size_t count, loff_t *ppos)
 {
 	printk(KERN_ALERT "write!\n");
-	/*+++获取设备结构体指针*/
+	/*获取设备结构体指针*/
 	struct globalmem_dev *dev = filp->private_data;
 
 	/*将设备数据写（到设备驱动缓存中），源数据当然存放在用户空间程序中*/
@@ -305,7 +317,7 @@ static int globalmem_ioctl(struct inode *inodep, struct file *filp, unsigned int
 {
 	printk(KERN_ALERT "ioctl!\n");
 
-	/*+++获取设备结构体指针*/
+	/*获取设备结构体指针*/
 	struct globalmem_dev *dev = filp->private_data;
 
 	switch(cmd)
@@ -340,7 +352,7 @@ int globalmem_init(void)
 		/*这个函数在内核源代码的"fs/chardev.c"中定义,并用EXPORT_SYMBOL导出到/proc/kallsyms*/
 		/*关于分配设备号相关建议，应该阅读内核源码中"Documentation/devices.txt"*/
 		/*register_chrdev_region是register_chrdev()的升级版本,多了向内核注册添加cdev设备的步骤*/
-		result = register_chrdev_region(devno, 1, "globalmem_std");
+		result = register_chrdev_region(devno, 1, "globalmem_multi");
 	}
 	else
 	{
@@ -348,7 +360,8 @@ int globalmem_init(void)
 		/*没有指定设备号的动态申请*/
 		/*参数第一个是返回的设备号，第二个是起始次设备号一般是0，第三个是设备数目，第四个是驱动名*/
 		/*定义位置和静态分配一样*/
-		result = alloc_chrdev_region(&devno, 0,1, "globalmem_std");
+		/*+++这里注意第三个参数设备数目为2了，也就是支持两个设备文件.*/
+		result = alloc_chrdev_region(&devno, 0,2, "globalmem_multi");
 
 		/*静态分配设备号参考*/
 		/*根据设备号获取对应主设备号,在"linux/kdev_t.h"定义*/
@@ -363,16 +376,19 @@ int globalmem_init(void)
 		return result;
 	}
 
-	/*+++在这里分配设备驱动结构指针的内存*/
-	devp = kmalloc(sizeof(struct globalmem_dev),GFP_KERNEL);
+	/*在这里分配设备驱动结构指针的内存*/
+	/*+++注意这里由于支持两个设备文件，所以分配了两个字符设备结构体的空间.*/
+	devp = kmalloc(2 * sizeof(struct globalmem_dev),GFP_KERNEL);
 	if(!devp)
 	{
 		result = -ENOMEM;
 		goto fail_malloc;
 	}
-	memset(devp, 0, sizeof(struct globalmem_dev));
+	memset(devp, 0, 2 * sizeof(struct globalmem_dev));
 
-	globalmem_setup_cdev(devp, 0);
+	/*+++注意，这里初始化两个相应的设备结构体，以及指定相应的从设备号???*/
+	globalmem_setup_cdev(&devp[0], 0);
+	globalmem_setup_cdev(&devp[1], 1);
 	printk(KERN_ALERT "Hello,globalmem driver inserted,major number is %d\n", globalmem_major);
 
 	fail_malloc:unregister_chrdev_region(devno,1);
@@ -382,13 +398,14 @@ int globalmem_init(void)
 /*驱动卸载函数*/
 void globalmem_exit(void)
 {
-	cdev_del(&devp->cdev);
+	cdev_del(&(devp[0].cdev));
+	cdev_del(&(devp[1].cdev));
 
-	/*+++这里释放设备结构体内存*/
+	/*这里释放设备结构体内存*/
 	kfree(devp);
 	/*注销设备号，在globalmem_init中注册的设备号应该一致*/
 	/*第一个参数是设备号，第二参数是次设备的数目*/
-	unregister_chrdev_region(MKDEV(globalmem_major, 0), 1);
+	unregister_chrdev_region(MKDEV(globalmem_major, 0), 2);
 }
 
 module_init(globalmem_init);
