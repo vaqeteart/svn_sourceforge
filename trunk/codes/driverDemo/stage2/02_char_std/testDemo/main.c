@@ -2,8 +2,12 @@
 #include <stdio.h>
 #include <fcntl.h>
 
+/*用于_IO宏*/
+#include <linux/fs.h>
+
 /*ioctl command of the driver*/
-#define MEM_CLEAR 0x1
+#define GLOBALMEM_MAGIC 'D'
+#define MEM_CLEAR _IO(GLOBALMEM_MAGIC,0)
 int main(int argc, char *argv[])
 {
 	int fd = open("/dev/mytest",O_RDWR);
