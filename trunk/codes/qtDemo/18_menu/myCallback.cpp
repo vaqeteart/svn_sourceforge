@@ -110,6 +110,7 @@ void MyCallback::contextMenuEvent(QContextMenuEvent *event)
 		//popupMenu.move(event->x(),event->y());//这里不能用相对坐标因为位置不对
 		popupMenu.move(event->globalX(),event->globalY());
 		popupMenu.exec();
+		//popupMenu.exec(event->globalPos());//也行,但是popup函数不行了
 	}
 	else
 	{//例如按windows键盘中的菜单按键
