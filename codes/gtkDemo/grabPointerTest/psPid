@@ -1,1 +1,0 @@
-ps aux | grep grab | awk '{print $2}'

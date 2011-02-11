@@ -1,3 +1,0 @@
-//移动到文件的首部
-infile.clear();
-infile.seekg(ios::beg);

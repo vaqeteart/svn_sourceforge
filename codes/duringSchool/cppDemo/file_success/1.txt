@@ -1,3 +1,0 @@
-first
-file
-while copy to the second file.
