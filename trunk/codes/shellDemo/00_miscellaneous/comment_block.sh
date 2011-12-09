@@ -9,7 +9,9 @@ echo good3
 COMMENTBLOCK
 #set +x
 echo good4
+:<<BLOCK
 echo good5
 echo good6
+BLOCK
 echo good7
 
