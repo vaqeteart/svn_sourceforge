@@ -40,6 +40,8 @@ from xml.dom import minidom
 class MyXmlParser(object):
     def parse(self,fpath):
         doc = minidom.parse(fpath)
+        #datasource = open(fpath)
+        #doc2 = parse(datasource)
         print '-' * 20
         print "get root:"
         root = doc.documentElement
@@ -126,5 +128,21 @@ class MyXmlParser(object):
                 subParameterNodesValue = subParameterNodes[0].childNodes[0].nodeValue
             print "parameter value:",subParameterNodesValue
 
-parser = MyXmlParser()
-parser.parse("sample.xml")
+if '__main__' == __name__:
+    parser = MyXmlParser()
+    parser.parse("sample.xml")
+
+    xmlString = '<myxml>Some data <child name="childname">child data</child> some more data</myxml>'
+    xmlStringDoc = minidom.parseString(xmlString)
+
+    stringRoot = xmlStringDoc.documentElement
+    stringChildren = stringRoot.getElementsByTagName('child')
+    rootData = stringRoot.childNodes[0].nodeValue
+    print "xml string root Data1:",rootData #Some data
+    rootData = stringRoot.childNodes[2].nodeValue
+    print "xml string root Data3:",rootData #some more data
+    childAttr = stringChildren[0].getAttribute('name')
+    print "xml string child attribute:",childAttr
+    childData = stringChildren[0].childNodes[0].nodeValue #child data
+    print "xml string child Data:",childData
+
