@@ -1,4 +1,5 @@
 #!/usr/bin/python
+import traceback
 '''Simple use of custom exception'''
 class MyException1(Exception):
     def __init__(self,msg="MyException1 occured!"):
@@ -37,6 +38,7 @@ if "__main__" == __name__:
         myfunc2() #exception 2
         myfunc2(1,2) #other exception parameter error.
     except (MyException1,MyException2),e:
+        traceback.print_exc() #trace back
         print e
     except Exception,e:
         print "other exception:", e
