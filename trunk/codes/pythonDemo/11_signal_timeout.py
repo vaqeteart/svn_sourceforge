@@ -48,17 +48,17 @@ def timeoutHandler(signo,frame):
     raise Exception("Timeout")
 
 def myfunc(sec):
-    try:
-        for i in range(sec):
-            time.sleep(1)
-            print i,"seconds elapse."
-    except Exception,e:
-        print "+++:",e
+    for i in range(sec):
+        time.sleep(1)
+        print i,"seconds elapse."
 
 if "__main__" == __name__:
     print "start main."
     t = TimeOutControl() 
     t.setupTimeout(3,timeoutHandler)
-    myfunc(6)
+    try:
+        myfunc(6)
+    except Exception,e:
+        print "+++:",e
     t.cleanupTimeout()
     print "end main."
