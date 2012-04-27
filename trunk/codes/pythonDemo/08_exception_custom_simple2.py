@@ -38,7 +38,9 @@ if "__main__" == __name__:
         myfunc2() #exception 2
         myfunc2(1,2) #other exception parameter error.
     except (MyException1,MyException2),e:
-        traceback.print_exc() #trace back
+        #traceback.print_exc() #print trace back
+        trace_str = traceback.format_exc() #get trace string
+        print trace_str
         print e
     except Exception,e:
         print "other exception:", e
