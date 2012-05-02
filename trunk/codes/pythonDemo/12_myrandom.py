@@ -8,7 +8,7 @@ class DateRandom(Random):
     def __init__(self):
         Random.__init__(self)
         self.dateSeed = time.strftime("%Y%m%d",time.localtime())
-        self.seed(self.dateSeed)
+        Random.seed(self,self.dateSeed)
 
     def seed(self,s=None):
         if None != s:
