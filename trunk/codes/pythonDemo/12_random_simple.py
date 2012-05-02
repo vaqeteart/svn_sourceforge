@@ -22,7 +22,7 @@ print random.random()
 date = int(time.strftime("%Y%m%d",time.localtime()))#20120427
 print date
 
-random.seed(date)
+random.seed(date) #seed canbe string, not only int
 for i in range(1,10):
     print random.randint(1,100)
 print "with same seed again:"
