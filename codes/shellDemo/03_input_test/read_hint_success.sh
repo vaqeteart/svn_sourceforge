@@ -10,4 +10,6 @@
 read -s -n1 -p "Hit a key " keypress
 echo; echo "Keypress was "\"$keypress\""."
 
+#read -p "what?"
+#echo $REPLY #this is your default input store variable.
 
