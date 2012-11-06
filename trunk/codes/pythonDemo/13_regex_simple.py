@@ -12,7 +12,7 @@
 import re
 orig_string = 'This is a string with field (1)="f1" and (2)="f2" and (3)="f3" and boundary is "<>"'
 regexp_greedy = r'^.*with field\s*\(\d+\)\s*=\s*"(?P<field1>\w+)".*\(\d+\)\s*=\s*"(?P<field2>\w+)".*is.*(?P<field3>"\S+").*$'
-pattern = re.compile(regexp_greedy)
+pattern = re.compile(regexp_greedy) #if .* means all(include \n),use compile(regexp_greedy,re.S), this mode can make '.*' match all chars, default not match \n.
 
 ###basic match
 #match the whole string, then get specified substring.
