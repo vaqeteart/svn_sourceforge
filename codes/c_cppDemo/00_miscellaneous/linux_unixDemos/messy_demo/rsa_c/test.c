@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <strings.h>
 #include "lib/rsa.h"
 
 #define BUFFER_SIZE 32
