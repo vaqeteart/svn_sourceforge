@@ -78,7 +78,7 @@ void rsaGetPublicKey(KeyPair* pub);
 @param priv The private key.
 */
 /*TODO It's best choose specific key we want.*/
-void rsaGetPrivatteKey(KeyPair* priv);
+void rsaGetPrivateKey(KeyPair* priv);
 
 /**@brief Encrypt the input buffer with public key.
 @param pubKey Public key generated in 'rsaInit' for encryption.

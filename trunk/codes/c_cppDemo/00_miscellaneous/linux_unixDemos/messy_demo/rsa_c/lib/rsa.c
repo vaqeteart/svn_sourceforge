@@ -14,21 +14,6 @@ All rights reserved.
 #include <string.h>
 #include "rsa.h"
 
-/**addtogroup Type Type define*/
-/**
-  @{
- */
-typedef struct KeySet
-{
-    ModuleType n;
-    ModuleType e[MAX_KEY_NUM];
-    ModuleType d[MAX_KEY_NUM];
-} KeySet;
-static KeySet s_keys;
-/**
-  @}
- */
-
 /**addtogroup Constant Constants.*/
 /**
   @{
@@ -42,6 +27,21 @@ static const char Hex[16] =
     '8', '9', 'a', 'b',
     'c', 'd', 'e', 'f'
 };
+/**
+  @}
+ */
+
+/**addtogroup Type Type define*/
+/**
+  @{
+ */
+typedef struct KeySet
+{
+    ModuleType n;
+    ModuleType e[MAX_KEY_NUM];
+    ModuleType d[MAX_KEY_NUM];
+} KeySet;
+static KeySet s_keys;
 /**
   @}
  */
@@ -62,10 +62,10 @@ static void encryptToHexString(const ModuleType *input, char* output);
 static void hexStringToEncrypt(const char *input, ModuleType *output);
 
 /**@brief Encrypt Byte array.*/
-static size_t rsaEncryptByte(KeyPair pubKey, const Byte* input, size_t inputLen, Byte* output);
+static void rsaEncryptByte(KeyPair pubKey, const Byte* input, size_t inputLen, Byte* output);
 
 /**@brief Decrypt Byte array.*/
-static size_t rsaDecryptByte(KeyPair privKey, const Byte* input, size_t inputLen, Byte* output);
+static void rsaDecryptByte(KeyPair privKey, const Byte* input, size_t inputLen, Byte* output);
 /**@}
  */
 
