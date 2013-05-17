@@ -14,6 +14,7 @@ All rights reserved.
 #define MD5_H
 
 #include <stdio.h>
+#define DIGEST_LEN 128
 /**If We use md5 algorithm define 'MD5' to 1.*/
 #define MD5 0
 
