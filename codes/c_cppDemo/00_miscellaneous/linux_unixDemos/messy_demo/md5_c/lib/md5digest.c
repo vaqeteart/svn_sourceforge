@@ -60,7 +60,7 @@ static const char Hex[16] =
 @{
  */
 /**Like the state (ABCD) in md5 which used for construct the final digest.*/
-static ULong ulState[4];
+static ULong ulState[4] = {0x67542301, 0xefcdab89, 0x98badcfe, 0x10325476};
 
 /**Number of bits of the whole data processed, represented with 64bit(low-order word first).*/
 static ULong ulCount[2];
@@ -110,6 +110,8 @@ static void bytesToHexString(const Byte *input, size_t length, char* outPut);
 size_t Md5StringDigest(const char* str, char* hexDigest)
 {
     reset();
+    memset(hexDigest, 0, DIGEST_LEN);
+
     update((const Byte*)str, strlen(str));
     digest(hexDigest);
     return 0; /*TODO*/
@@ -121,6 +123,7 @@ size_t Md5FileDigest(const char* filename, char* hexDigest)
     FILE *fp;
 
     reset();
+    memset(hexDigest, 0, DIGEST_LEN);
 
     fp = fopen(filename, "r");
     if (NULL == fp)
@@ -147,6 +150,8 @@ size_t Md5FileDigest(const char* filename, char* hexDigest)
 size_t Md5BufferDigest(const Byte* buf, size_t bufLen, char* hexDigest)
 {
     reset();
+    memset(hexDigest, 0, DIGEST_LEN);
+
     update((const Byte*)buf, bufLen);
     digest(hexDigest);
     return 0; /*TODO*/
@@ -155,7 +160,6 @@ size_t Md5BufferDigest(const Byte* buf, size_t bufLen, char* hexDigest)
 
 static void reset(void) 
 {
-
     bFinished = 0;
     /* reset number of bits. */
     ulCount[0] = ulCount[1] = 0;
@@ -164,6 +168,8 @@ static void reset(void)
     ulState[1] = 0xefcdab89;
     ulState[2] = 0x98badcfe;
     ulState[3] = 0x10325476;
+    memset(byteDigest, 0, sizeof(byteDigest));
+    memset(byteBuffer, 0, sizeof(byteBuffer));
 }
 
 /* @detail Md5Digest block update operation continued with an Md5Digest message-digest operation.
