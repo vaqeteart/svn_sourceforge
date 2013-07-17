@@ -8,6 +8,7 @@ C99标准中新增了可变参数列表的内容. 不光是函数, 函数宏中�
 实践发现：
 #define my_printf(format, ...) printf(format, __VA_ARGS__)这样会报告错误。
 #define my_printf(format, args...) printf(format, ## args)这样就不会有错误了（gcc风格）。
+
 (应该是编译器的特性吧)
 */
 
