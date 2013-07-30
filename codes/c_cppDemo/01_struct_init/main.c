@@ -28,4 +28,16 @@ int main(int argc, char *argv[])
     };
 
     printf("member:%d, sub1:%d, sub2:%d\n", s.myMember1, s.sub.mySubMember1, s.sub.mySubMember2);
+    /* Cann't assign after declare.
+    s = 
+    {
+        .myMember1 = 4,
+        .sub = 
+        {
+            .mySubMember1 = 5,
+            .mySubMember2 = 6,
+        }
+    };
+    printf("member:%d, sub1:%d, sub2:%d\n", s.myMember1, s.sub.mySubMember1, s.sub.mySubMember2);
+    */
 }
