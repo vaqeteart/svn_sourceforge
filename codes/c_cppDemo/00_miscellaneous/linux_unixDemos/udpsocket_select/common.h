@@ -1,7 +1,6 @@
 #ifndef __COMMON_H
 #define __COMMON_H
 
-#define UDP_SEND_PORT          50054
 #define UDP_RECV_PORT          50055
 
 #define SERVER_RSP 0x01
