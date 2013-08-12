@@ -1,4 +1,7 @@
-MODULES=aa bb cc dd ee ff
+MODULES=
+MODULES+=aa
+MODULES+=bb
+MODULES+=cc dd ee ff
 MODULES+=gg
 MODULES+=hh
 MODULES+=ii
