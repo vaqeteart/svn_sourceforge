@@ -1,7 +1,15 @@
 include Makefile.modules
-default:$(MODULES)
+
+default:
+	@make depend MAKETARGET=depend
+	@make libs MAKETARGET=libs
+
+depend:$(MODULES)
+
+libs:$(MODULES)
 
 $(MODULES):
-	@echo $@/$@.11
-
-.PHONY:default $(MODULES)
+	@#we can replace it as 'make -C $@ ${MAKETARGET}' implements multi object and multi depends.
+	@echo for dep, $@ target is:${MAKETARGET}
+	
+.PHONY:$(MODULES)
