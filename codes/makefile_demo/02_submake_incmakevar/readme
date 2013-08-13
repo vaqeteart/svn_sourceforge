@@ -1,0 +1,14 @@
+查看对make变量的导入情况。
+使用include方式，定义的变量不用导入到出即能在子make中直接使用。
+使用make -C方式，子make中只能使用exported导出的make变量。
+include的make中，不能有和主make一样的目标（对于单目标的make而言）。
+
+include类似define，所以如果主make中的第一个目标前有include的动作，那么最开始include的makefile，其第一个目标是最终目标，include的makefile不用export其定义的变量直接可在主make使用。
+
+所以本实例使用：
+make default
+才能看见主make中的default被执行。
+
+若只使用:
+make
+则只能看见make.includehead中的第一个规则被执行。
