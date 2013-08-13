@@ -10,4 +10,5 @@
 [ -z $MY_E ] && MY_E=2
 #只用一行来完成测试。
 if [ $MY_E = "1" ]; then echo "good1"; elif [ $MY_E = "2" ]; then echo "good2"; else echo "what?"; fi
+if [ $MY_E = "1" ]; then echo "good1"; echo "good11"; elif [ $MY_E = "2" ]; then echo "good2"; else echo "what?"; fi
 
