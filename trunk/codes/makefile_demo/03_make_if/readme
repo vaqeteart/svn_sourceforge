@@ -1,0 +1,8 @@
+测试make条件赋值：
+MYVAR?=xxx
+当定义过则赋值，否则不赋值。
+
+测试make条件分支
+make MYVAR=2
+或
+make
