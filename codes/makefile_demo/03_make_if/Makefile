@@ -6,3 +6,12 @@ else
 all:
 	@echo "my var is 2."
 endif
+
+MYNULL=   
+ifeq (,$(strip $(MYNULL)))
+null:
+	@echo "my null is null"
+else
+null:
+	@echo "my null is not null"
+endif
