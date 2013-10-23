@@ -22,6 +22,7 @@ $lupdate xxx.pro  # 生成ts文件
 (4)以ts为输入，生成qm文件
 $lrelease xxx.pro
 或$lrelease Language_Chn.qm
+这里，生成的xxx.qm文件就是程序加载时使用的翻译文件，注意：qt的linguist可以继续在这个qm文件上编辑。
 
 (5)增加代码
 QTranslator qtTranslator;
